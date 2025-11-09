@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -8,11 +8,8 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-
-
-
-
-const uri = "mongodb+srv://TravelEase-server:rSnVtJk2pNgWcGmy@cluster0.gisrno5.mongodb.net/?appName=Cluster0";
+const uri =
+  'mongodb+srv://TravelEase-server:rSnVtJk2pNgWcGmy@cluster0.gisrno5.mongodb.net/?appName=Cluster0';
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -20,7 +17,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
@@ -28,28 +25,57 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const db =client.db('TravelEase-server')
-    const modelCollection =db.collection('models')
+    const db = client.db('TravelEase-server');
+    const modelCollection = db.collection('models');
 
-  app.get("/models", async (req, res) => {
+    app.get('/models', async (req, res) => {
       const result = await modelCollection.find().toArray();
       res.send(result);
     });
 
+    app.get('/models/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await modelCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post('/models', async (req, res) => {
+      const newProducts = req.body;
+      const result = await modelCollection.insertOne(newProducts);
+      res.send(result);
+    });
+
+    app.delete('/models/:id', async (req, res) => {
+      const id = req.params.id;
+
+      const query = { _id: new ObjectId(id) };
+      const result = await modelCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.patch('/models/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateProducts = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: updateProducts,
+      };
+      const result = await modelCollection.updateOne(query, update);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    await client.db('admin').command({ ping: 1 });
+    console.log(
+      'Pinged your deployment. You successfully connected to MongoDB!'
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
 }
 run().catch(console.dir);
-
-
-
-
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
