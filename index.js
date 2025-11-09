@@ -29,7 +29,14 @@ async function run() {
     const modelCollection = db.collection('models');
 
     app.get('/models', async (req, res) => {
-      const result = await modelCollection.find().toArray();
+      const email = req.query.email;
+      const query = {};
+
+      if (email) {
+        query.userEmail = email; // <-- এইখানে ডাটাবেজের ফিল্ড নাম দিতে হবে
+      }
+
+      const result = await modelCollection.find(query).toArray();
       res.send(result);
     });
 
