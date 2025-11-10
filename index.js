@@ -52,26 +52,6 @@ async function run() {
       res.send(result);
     });
 
-    // 🔹 Delete a booking by ID
-    app.delete('/bookings/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await bookingsCollection.deleteOne(query);
-      res.send(result);
-    });
-
-    // 🔹 Update a booking (for example, change status)
-    app.patch('/bookings/:id', async (req, res) => {
-      const id = req.params.id;
-      const updatedBooking = req.body;
-      const query = { _id: new ObjectId(id) };
-      const updateDoc = {
-        $set: updatedBooking,
-      };
-      const result = await bookingsCollection.updateOne(query, updateDoc);
-      res.send(result);
-    });
-
     // user
     app.post('/users', async (req, res) => {
       const newUser = req.body;
