@@ -27,6 +27,64 @@ async function run() {
 
     const db = client.db('TravelEase-server');
     const modelCollection = db.collection('models');
+    const usersCollection = db.collection('users');
+    const bookingsCollection = db.collection('bookings');
+
+    // Booking related
+
+    // 🔹 Get all bookings (or filter by user email)
+    app.get('/bookings', async (req, res) => {
+      const email = req.query.email;
+      const query = {};
+
+      if (email) {
+        query.userEmail = email; // লগইন ইউজারের ইমেইল দিয়ে ফিল্টার
+      }
+
+      const result = await bookingsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // 🔹 Add new booking
+    app.post('/bookings', async (req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    // 🔹 Delete a booking by ID
+    app.delete('/bookings/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingsCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // 🔹 Update a booking (for example, change status)
+    app.patch('/bookings/:id', async (req, res) => {
+      const id = req.params.id;
+      const updatedBooking = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: updatedBooking,
+      };
+      const result = await bookingsCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
+    // user
+    app.post('/users', async (req, res) => {
+      const newUser = req.body;
+      const email = req.body.email;
+      const query = { email: email };
+      const existingUser = await usersCollection.findOne(query);
+      if (existingUser) {
+        res.send({ message: 'user already exits' });
+      } else {
+        const result = await usersCollection.insertOne(newUser);
+        res.send(result);
+      }
+    });
 
     app.get('/models', async (req, res) => {
       const email = req.query.email;
@@ -40,12 +98,26 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/vehicles', async (req, res) => {
+      const result = await modelCollection.find().toArray();
+      res.send(result);
+    });
+
+
+
     app.get('/models/:id', async (req, res) => {
       const id = req.params.id;
+      // invalid id check করা ভালো অভ্যাস
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send({ error: 'Invalid ID format' });
+      }
       const query = { _id: new ObjectId(id) };
       const result = await modelCollection.findOne(query);
       res.send(result);
     });
+
+
+
 
     app.post('/models', async (req, res) => {
       const newProducts = req.body;
