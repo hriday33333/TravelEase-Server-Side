@@ -103,8 +103,6 @@ async function run() {
       res.send(result);
     });
 
-
-
     app.get('/models/:id', async (req, res) => {
       const id = req.params.id;
       // invalid id check করা ভালো অভ্যাস
@@ -115,9 +113,6 @@ async function run() {
       const result = await modelCollection.findOne(query);
       res.send(result);
     });
-
-
-
 
     app.post('/models', async (req, res) => {
       const newProducts = req.body;
@@ -133,7 +128,7 @@ async function run() {
       res.send(result);
     });
 
-    app.patch('/models/:id', async (req, res) => {
+    app.put('/models/:id', async (req, res) => {
       const id = req.params.id;
       const updateProducts = req.body;
       const query = { _id: new ObjectId(id) };
