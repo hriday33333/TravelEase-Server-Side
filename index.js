@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const db = client.db('TravelEase-server');
     const modelCollection = db.collection('models');
@@ -36,13 +36,13 @@ async function run() {
       const email = req.query.email;
       const query = {};
       if (email) {
-        query.userEmail = email; // লগইন ইউজারের ইমেইল দিয়ে ফিল্টার
+        query.userEmail = email;
       }
       const result = await bookingsCollection.find(query).toArray();
       res.send(result);
     });
 
-    // 🔹 Add new booking
+
     app.post('/bookings', async (req, res) => {
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking);
@@ -74,7 +74,7 @@ async function run() {
       const query = {};
 
       if (email) {
-        query.userEmail = email; // <-- এইখানে ডাটাবেজের ফিল্ড নাম দিতে হবে
+        query.userEmail = email;
       }
 
       const result = await modelCollection.find(query).toArray();
@@ -84,8 +84,8 @@ async function run() {
     app.get('/sortmodels', async (req, res) => {
       const result = await modelCollection
         .find()
-        .sort({ createdAt: -1 }) // newest first
-        .limit(6) // last 6 items
+        .sort({ createdAt: -1 })
+        .limit(6)
         .toArray();
 
       res.send(result);
@@ -98,7 +98,7 @@ async function run() {
 
     app.get('/models/:id', async (req, res) => {
       const id = req.params.id;
-      // invalid id check করা ভালো অভ্যাস
+     
       if (!ObjectId.isValid(id)) {
         return res.status(400).send({ error: 'Invalid ID format' });
       }
@@ -133,7 +133,7 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db('admin').command({ ping: 1 });
+    // await client.db('admin').command({ ping: 1 });
     console.log(
       'Pinged your deployment. You successfully connected to MongoDB!'
     );
